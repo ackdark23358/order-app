@@ -178,6 +178,23 @@ function App() {
   const handleOrder = () => {
     if (cartItems.length === 0) return
     
+    // 주문 전 재고 검증
+    const stockIssues = []
+    for (const item of cartItems) {
+      const stock = getStock(item.menuId)
+      if (stock === 0) {
+        stockIssues.push(`${item.menuName} - 품절`)
+      } else if (item.quantity > stock) {
+        stockIssues.push(`${item.menuName} - 재고 부족 (현재 재고: ${stock}개, 주문 수량: ${item.quantity}개)`)
+      }
+    }
+    
+    if (stockIssues.length > 0) {
+      alert(`주문할 수 없는 상품이 있습니다:\n\n${stockIssues.join('\n')}\n\n장바구니를 확인해주세요.`)
+      return
+    }
+    
+    // 주문 생성
     const now = new Date()
     const month = now.getMonth() + 1
     const day = now.getDate()
@@ -193,6 +210,19 @@ function App() {
       status: 'received' // 'received', 'preparing', 'completed'
     }
     
+    // 주문 성공 시 재고 차감
+    const updatedInventory = [...inventory]
+    cartItems.forEach(cartItem => {
+      const inventoryIndex = updatedInventory.findIndex(inv => inv.id === cartItem.menuId)
+      if (inventoryIndex !== -1) {
+        updatedInventory[inventoryIndex].stock -= cartItem.quantity
+        if (updatedInventory[inventoryIndex].stock < 0) {
+          updatedInventory[inventoryIndex].stock = 0
+        }
+      }
+    })
+    
+    setInventory(updatedInventory)
     setOrders([newOrder, ...orders])
     alert(`주문이 완료되었습니다!\n총 금액: ${calculateTotal().toLocaleString()}원`)
     setCartItems([])
@@ -269,6 +299,7 @@ function App() {
         onUpdateQuantity={updateQuantity}
         onRemove={removeFromCart}
         onOrder={handleOrder}
+        getStock={getStock}
       />
     </div>
   )

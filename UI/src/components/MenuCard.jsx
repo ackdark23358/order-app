@@ -63,15 +63,16 @@ function MenuCard({ menuItem, stock, onAddToCart }) {
           {menuItem.options.map(option => (
             <label 
               key={option.id}
-              className="flex items-center cursor-pointer"
+              className={`flex items-center ${isOutOfStock ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
             >
               <input
                 type="checkbox"
                 checked={selectedOptions.includes(option.id)}
                 onChange={() => toggleOption(option.id)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                disabled={isOutOfStock}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:cursor-not-allowed"
               />
-              <span className="ml-2 text-sm text-gray-700">
+              <span className={`ml-2 text-sm ${isOutOfStock ? 'text-gray-400' : 'text-gray-700'}`}>
                 {option.name} {option.price > 0 && `(+${option.price.toLocaleString()}원)`}
               </span>
             </label>
