@@ -2,6 +2,9 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import pool from './config/database.js'
+import menusRouter from './routes/menus.js'
+import ordersRouter from './routes/orders.js'
+import statsRouter from './routes/stats.js'
 
 // 환경 변수 로드
 dotenv.config()
@@ -10,7 +13,10 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 // 미들웨어 설정
-app.use(cors()) // CORS 허용
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  credentials: true
+})) // CORS 허용
 app.use(express.json()) // JSON 파싱
 app.use(express.urlencoded({ extended: true })) // URL 인코딩된 데이터 파싱
 
@@ -32,7 +38,7 @@ app.get('/', (req, res) => {
   })
 })
 
-// API 라우트 (추후 추가)
+// 헬스 체크
 app.get('/api/health', async (req, res) => {
   try {
     // 데이터베이스 연결 상태 확인
@@ -53,6 +59,11 @@ app.get('/api/health', async (req, res) => {
     })
   }
 })
+
+// API 라우트
+app.use('/api/menus', menusRouter)
+app.use('/api/orders', ordersRouter)
+app.use('/api/stats', statsRouter)
 
 // 404 핸들러
 app.use((req, res) => {

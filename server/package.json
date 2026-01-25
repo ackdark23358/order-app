@@ -10,7 +10,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "create-db": "node scripts/create-database.js",
     "test-db": "node scripts/test-db.js",
-    "create-schema": "node scripts/create-schema.js"
+    "create-schema": "node scripts/create-schema.js",
+    "insert-data": "node scripts/insert-initial-data.js",
+    "check-db": "node scripts/check-database.js"
   },
   "keywords": [
     "express",

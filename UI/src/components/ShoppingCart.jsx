@@ -91,7 +91,8 @@ function ShoppingCart({ items, total, onUpdateQuantity, onRemove, onOrder, getSt
                       </div>
                     </div>
                   </div>
-                ))}
+                );
+                })}
               </div>
             )}
           </div>
