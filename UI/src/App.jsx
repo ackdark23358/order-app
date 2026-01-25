@@ -2,6 +2,9 @@ import { useState } from 'react'
 import Header from './components/Header'
 import MenuCard from './components/MenuCard'
 import ShoppingCart from './components/ShoppingCart'
+import AdminDashboard from './components/AdminDashboard'
+import InventoryStatus from './components/InventoryStatus'
+import OrderStatus from './components/OrderStatus'
 import './App.css'
 
 // 임의의 커피 메뉴 데이터
@@ -76,15 +79,44 @@ const menuItems = [
 ]
 
 function App() {
+  const [currentView, setCurrentView] = useState('order') // 'order' or 'admin'
   const [cartItems, setCartItems] = useState([])
+  const [orders, setOrders] = useState([])
+  const [inventory, setInventory] = useState([
+    { id: 1, name: '아메리카노(ICE)', stock: 10 },
+    { id: 2, name: '아메리카노(HOT)', stock: 10 },
+    { id: 3, name: '카페라떼', stock: 10 },
+    { id: 4, name: '카푸치노', stock: 10 },
+    { id: 5, name: '카라멜 마키아토', stock: 10 },
+    { id: 6, name: '바닐라 라떼', stock: 10 }
+  ])
+
+  const getStock = (menuId) => {
+    const inventoryItem = inventory.find(inv => inv.id === menuId)
+    return inventoryItem ? inventoryItem.stock : 999 // 재고 정보가 없으면 충분히 있다고 가정
+  }
 
   const addToCart = (menuItem, selectedOptions) => {
+    const stock = getStock(menuItem.id)
+    
+    // 재고가 0이면 주문 불가
+    if (stock === 0) {
+      alert('품절된 상품입니다. 주문할 수 없습니다.')
+      return
+    }
+    
     const optionIds = selectedOptions.sort().join(',')
     const cartKey = `${menuItem.id}-${optionIds}`
     
     const existingItem = cartItems.find(item => item.cartKey === cartKey)
     
     if (existingItem) {
+      // 장바구니에 이미 있는 경우, 재고를 확인
+      const currentQuantity = existingItem.quantity
+      if (currentQuantity + 1 > stock) {
+        alert(`재고가 부족합니다. (현재 재고: ${stock}개)`)
+        return
+      }
       setCartItems(cartItems.map(item => 
         item.cartKey === cartKey 
           ? { ...item, quantity: item.quantity + 1 }
@@ -121,6 +153,14 @@ function App() {
       if (item.cartKey === cartKey) {
         const newQuantity = item.quantity + change
         if (newQuantity <= 0) return null
+        
+        // 재고 확인
+        const stock = getStock(item.menuId)
+        if (change > 0 && newQuantity > stock) {
+          alert(`재고가 부족합니다. (현재 재고: ${stock}개)`)
+          return item
+        }
+        
         return { ...item, quantity: newQuantity, totalPrice: (item.basePrice + item.optionPrice) * newQuantity }
       }
       return item
@@ -138,24 +178,87 @@ function App() {
   const handleOrder = () => {
     if (cartItems.length === 0) return
     
+    const now = new Date()
+    const month = now.getMonth() + 1
+    const day = now.getDate()
+    const hours = now.getHours()
+    const minutes = String(now.getMinutes()).padStart(2, '0')
+    const orderDate = `${month}월 ${day}일 ${hours}:${minutes}`
+    
+    const newOrder = {
+      id: Date.now(),
+      date: orderDate,
+      items: [...cartItems],
+      total: calculateTotal(),
+      status: 'received' // 'received', 'preparing', 'completed'
+    }
+    
+    setOrders([newOrder, ...orders])
     alert(`주문이 완료되었습니다!\n총 금액: ${calculateTotal().toLocaleString()}원`)
     setCartItems([])
   }
 
+  const updateInventory = (menuId, change) => {
+    setInventory(inventory.map(item => {
+      if (item.id === menuId) {
+        const newStock = item.stock + change
+        return { ...item, stock: Math.max(0, newStock) }
+      }
+      return item
+    }))
+  }
+
+  const updateOrderStatus = (orderId, newStatus) => {
+    setOrders(orders.map(order => 
+      order.id === orderId ? { ...order, status: newStatus } : order
+    ))
+  }
+
+  const getOrderStats = () => {
+    const total = orders.length
+    const received = orders.filter(o => o.status === 'received').length
+    const preparing = orders.filter(o => o.status === 'preparing').length
+    const completed = orders.filter(o => o.status === 'completed').length
+    return { total, received, preparing, completed }
+  }
+
+  if (currentView === 'admin') {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header currentView={currentView} onViewChange={setCurrentView} />
+        <div className="container mx-auto px-4 py-6 space-y-6">
+          <AdminDashboard stats={getOrderStats()} />
+          <InventoryStatus 
+            inventory={inventory} 
+            onUpdateInventory={updateInventory}
+          />
+          <OrderStatus 
+            orders={orders}
+            onUpdateStatus={updateOrderStatus}
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Header />
+      <Header currentView={currentView} onViewChange={setCurrentView} />
       
       <main className="flex-1 pb-80 px-4 py-6">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {menuItems.map(item => (
-              <MenuCard 
-                key={item.id} 
-                menuItem={item}
-                onAddToCart={addToCart}
-              />
-            ))}
+            {menuItems.map(item => {
+              const stock = getStock(item.id)
+              return (
+                <MenuCard 
+                  key={item.id} 
+                  menuItem={item}
+                  stock={stock}
+                  onAddToCart={addToCart}
+                />
+              )
+            })}
           </div>
         </div>
       </main>

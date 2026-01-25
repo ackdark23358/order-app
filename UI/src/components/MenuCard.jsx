@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function MenuCard({ menuItem, onAddToCart }) {
+function MenuCard({ menuItem, stock, onAddToCart }) {
   const [selectedOptions, setSelectedOptions] = useState([])
 
   const toggleOption = (optionId) => {
@@ -20,9 +20,15 @@ function MenuCard({ menuItem, onAddToCart }) {
   }
 
   const handleAddToCart = () => {
+    if (stock === 0) {
+      alert('품절된 상품입니다. 주문할 수 없습니다.')
+      return
+    }
     onAddToCart(menuItem, selectedOptions)
     setSelectedOptions([])
   }
+
+  const isOutOfStock = stock === 0
 
   return (
     <div className="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -33,12 +39,17 @@ function MenuCard({ menuItem, onAddToCart }) {
 
       <div className="p-4">
         {/* 메뉴 이름 */}
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
-          {menuItem.name}
-        </h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-xl font-bold text-gray-800">
+            {menuItem.name}
+          </h3>
+          {isOutOfStock && (
+            <span className="text-red-600 font-semibold text-sm">품절</span>
+          )}
+        </div>
 
         {/* 가격 */}
-        <p className="text-lg font-semibold text-gray-800 mb-2">
+        <p className={`text-lg font-semibold mb-2 ${isOutOfStock ? 'text-gray-400' : 'text-gray-800'}`}>
           {calculatePrice().toLocaleString()}원
         </p>
 
@@ -70,9 +81,14 @@ function MenuCard({ menuItem, onAddToCart }) {
         {/* 담기 버튼 */}
         <button
           onClick={handleAddToCart}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded font-medium transition-colors"
+          disabled={isOutOfStock}
+          className={`w-full py-2 px-4 rounded font-medium transition-colors ${
+            isOutOfStock
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600 text-white'
+          }`}
         >
-          담기
+          {isOutOfStock ? '품절' : '담기'}
         </button>
       </div>
     </div>
