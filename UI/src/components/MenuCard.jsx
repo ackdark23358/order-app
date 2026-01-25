@@ -1,7 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function MenuCard({ menuItem, stock, onAddToCart }) {
   const [selectedOptions, setSelectedOptions] = useState([])
+  const [imageError, setImageError] = useState(false)
+  const [imageSrc, setImageSrc] = useState(null)
+
+  // 이미지 경로 찾기 (여러 확장자 시도)
+  useEffect(() => {
+    if (menuItem.image_url) {
+      setImageSrc(menuItem.image_url)
+      return
+    }
+
+    // 여러 확장자를 시도
+    const extensions = ['jpg', 'jpeg', 'png', 'webp']
+    const menuId = menuItem.id
+    
+    // 첫 번째로 시도할 이미지 경로 설정
+    setImageSrc(`/images/menu-${menuId}.jpg`)
+  }, [menuItem])
 
   const toggleOption = (optionId) => {
     setSelectedOptions(prev => 
@@ -30,11 +47,44 @@ function MenuCard({ menuItem, stock, onAddToCart }) {
 
   const isOutOfStock = stock === 0
 
+  // 이미지 로드 실패 시 다른 확장자 시도
+  const handleImageError = () => {
+    if (imageError) return // 이미 시도했으면 중단
+    
+    const extensions = ['jpg', 'jpeg', 'png', 'webp']
+    const menuId = menuItem.id
+    const currentSrc = imageSrc || ''
+    
+    // 현재 확장자 찾기
+    const currentExt = currentSrc.split('.').pop()?.toLowerCase()
+    const currentIndex = extensions.indexOf(currentExt)
+    
+    // 다음 확장자 시도
+    if (currentIndex < extensions.length - 1) {
+      const nextExt = extensions[currentIndex + 1]
+      setImageSrc(`/images/menu-${menuId}.${nextExt}`)
+    } else {
+      // 모든 확장자 시도 실패
+      setImageError(true)
+    }
+  }
+
   return (
     <div className="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      {/* 이미지 플레이스홀더 */}
-      <div className="w-full h-48 bg-gray-100 flex items-center justify-center border-b border-gray-300">
-        <div className="text-gray-400 text-4xl">☕</div>
+      {/* 이미지 */}
+      <div className="w-full h-48 bg-gray-100 border-b border-gray-300 relative overflow-hidden">
+        {imageSrc && !imageError ? (
+          <img 
+            src={imageSrc}
+            alt={menuItem.name}
+            className="w-full h-full object-cover"
+            onError={handleImageError}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-gray-400 text-4xl">☕</div>
+          </div>
+        )}
       </div>
 
       <div className="p-4">

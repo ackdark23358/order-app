@@ -12,7 +12,8 @@
     "test-db": "node scripts/test-db.js",
     "create-schema": "node scripts/create-schema.js",
     "insert-data": "node scripts/insert-initial-data.js",
-    "check-db": "node scripts/check-database.js"
+    "check-db": "node scripts/check-database.js",
+    "check-menus": "node scripts/check-menus.js"
   },
   "keywords": [
     "express",

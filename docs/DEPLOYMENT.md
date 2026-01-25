@@ -1,0 +1,116 @@
+# Render.com 배포 가이드
+
+## 배포 순서
+
+### 1단계: PostgreSQL 데이터베이스 생성
+
+1. Render.com 대시보드에 로그인
+2. **New +** 버튼 클릭 → **PostgreSQL** 선택
+3. 설정:
+   - **Name**: `coffee-order-db` (또는 원하는 이름)
+   - **Database**: `coffee_order_db`
+   - **User**: 자동 생성됨
+   - **Region**: 가장 가까운 지역 선택
+   - **PostgreSQL Version**: 최신 버전
+   - **Plan**: Free (또는 원하는 플랜)
+4. **Create Database** 클릭
+5. 생성 후 **Connections** 탭에서 연결 정보 확인:
+   - **Internal Database URL**: 백엔드에서 사용
+   - **External Database URL**: 로컬에서 연결 시 사용
+
+### 2단계: 백엔드 서버 배포
+
+1. **New +** 버튼 클릭 → **Web Service** 선택
+2. GitHub 저장소 연결 (또는 직접 배포)
+3. 설정:
+   - **Name**: `coffee-order-api` (또는 원하는 이름)
+   - **Environment**: `Node`
+   - **Region**: 데이터베이스와 같은 지역
+   - **Branch**: `main` (또는 메인 브랜치)
+   - **Root Directory**: `server`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Plan**: Free (또는 원하는 플랜)
+
+4. **Environment Variables** 추가:
+   ```
+   NODE_ENV=production
+   PORT=10000
+   DB_HOST=<데이터베이스 호스트>
+   DB_PORT=5432
+   DB_NAME=coffee_order_db
+   DB_USER=<데이터베이스 사용자>
+   DB_PASSWORD=<데이터베이스 비밀번호>
+   CORS_ORIGIN=https://your-frontend-url.onrender.com
+   ```
+   (데이터베이스 연결 정보는 PostgreSQL 서비스의 **Connections** 탭에서 확인)
+
+5. **Create Web Service** 클릭
+
+6. 배포 완료 후 백엔드 URL 확인 (예: `https://coffee-order-api.onrender.com`)
+
+### 3단계: 데이터베이스 초기화
+
+백엔드 서버가 배포된 후, 데이터베이스 스키마와 초기 데이터를 삽입해야 합니다.
+
+**옵션 1: Render Shell 사용**
+1. 백엔드 서비스의 **Shell** 탭 열기
+2. 다음 명령어 실행:
+   ```bash
+   npm run create-schema
+   npm run insert-data
+   ```
+
+**옵션 2: 로컬에서 실행 (External Database URL 사용)**
+1. 로컬에서 `.env` 파일에 External Database URL 설정
+2. 다음 명령어 실행:
+   ```bash
+   cd server
+   npm run create-schema
+   npm run insert-data
+   ```
+
+### 4단계: 프런트엔드 배포
+
+1. **New +** 버튼 클릭 → **Static Site** 선택
+2. GitHub 저장소 연결
+3. 설정:
+   - **Name**: `coffee-order-app` (또는 원하는 이름)
+   - **Branch**: `main` (또는 메인 브랜치)
+   - **Root Directory**: `UI`
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `dist`
+
+4. **Environment Variables** 추가 (필요한 경우):
+   ```
+   VITE_API_URL=https://coffee-order-api.onrender.com
+   ```
+
+5. **Create Static Site** 클릭
+
+6. 배포 완료 후 프런트엔드 URL 확인 (예: `https://coffee-order-app.onrender.com`)
+
+### 5단계: 프런트엔드 API URL 업데이트
+
+프런트엔드 코드에서 백엔드 API URL을 업데이트해야 합니다.
+
+## 중요 사항
+
+1. **무료 플랜 제한사항**:
+   - 서비스가 15분간 비활성화되면 자동으로 sleep 모드로 전환됨
+   - 첫 요청 시 깨어나는데 시간이 걸릴 수 있음 (최대 50초)
+
+2. **환경 변수**:
+   - 모든 민감한 정보는 환경 변수로 관리
+   - `.env` 파일은 Git에 커밋하지 않음
+
+3. **CORS 설정**:
+   - 백엔드의 `CORS_ORIGIN`을 프런트엔드 URL로 설정
+
+4. **데이터베이스 연결**:
+   - Render 내부 서비스 간에는 Internal Database URL 사용
+   - SSL 연결이 필요할 수 있음
+
+5. **빌드 최적화**:
+   - 프런트엔드 빌드 시 프로덕션 모드로 빌드됨
+   - 이미지 파일은 `public/images` 폴더에 있어야 함
