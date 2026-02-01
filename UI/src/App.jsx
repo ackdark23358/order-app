@@ -1,3 +1,4 @@
+// 백엔드 API: https://order-app-backend2.onrender.com
 import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import MenuCard from './components/MenuCard'
