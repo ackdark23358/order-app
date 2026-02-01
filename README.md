@@ -2,7 +2,7 @@
 
 사용자가 커피 메뉴를 주문하고, 관리자가 재고·주문 상태를 관리할 수 있는 풀스택 웹 앱입니다.
 
-**본 서비스는 Cursor AI로 생성되었습니다.** 메타데이터와 화면 하단 문구로 이를 명시합니다.
+**본 서비스는 Cursor AI로 생성되었습니다.** 메타데이터와 헤더(COZY 로고 옆) 문구로 이를 명시합니다.
 
 ## 기술 스택
 
@@ -112,7 +112,7 @@ cd ../server && npm start
 ## Cursor AI 생성 고지
 
 - **메타데이터** (`UI/index.html`): `generator`, `ai-generated-by` 메타 태그에 "Cursor AI"를, `description`에 "Cursor AI로 생성된 커피 주문 웹 앱입니다."를 넣었습니다. JSON-LD 스키마의 `author`에도 Cursor AI 생성임을 표시합니다.
-- **하단 워터마크**: 모든 화면(주문·관리자) 하단에 **"Cursor AI로 생성된 서비스입니다."** 문구가 표시됩니다 (`UI/src/components/AiWatermark.jsx`).
+- **워터마크**: COZY 로고 옆(헤더 좌측)에 **"Cursor AI로 생성된 서비스입니다."** 문구가 표시됩니다 (`UI/src/components/Header.jsx`).
 
 ## API 요약
 
