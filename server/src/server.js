@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
@@ -13,6 +14,21 @@ dotenv.config()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.PORT || 3000
+
+// 프론트·백엔드 별도 도메인일 때 필요. Render에서 CORS_ORIGIN=프론트 URL 설정
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+const allowedOrigins = corsOrigin.split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean)
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true)
+    const normalized = origin.replace(/\/$/, '')
+    if (allowedOrigins.includes(normalized)) return cb(null, origin)
+    return cb(null, false)
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}))
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

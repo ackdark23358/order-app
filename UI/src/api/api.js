@@ -1,6 +1,6 @@
-// API 기본 URL 설정 (환경 변수 또는 기본값)
-// 같은 오리진 서빙 시 상대 경로 사용 (CORS 불필요). 별도 도메인 배포 시 VITE_API_URL 설정
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+// API 기본 URL: VITE_API_URL 있으면 사용, 없으면 백엔드 전체 URL (프론트·백엔드 별도 도메인 시)
+// 같은 오리진 서빙 시 VITE_API_URL=/api 또는 빌드 시 상대 경로 사용
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://order-app-backend2.onrender.com/api'
 
 // API 호출 헬퍼 함수
 async function apiRequest(endpoint, options = {}) {
