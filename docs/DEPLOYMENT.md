@@ -79,7 +79,7 @@
    - **Branch**: `main` (또는 메인 브랜치)
    - **Root Directory**: `UI`
    - **Build Command**: `npm install && npm run build`
-   - **Publish Directory**: `dist`
+   - **Publish Directory**: `dist` (Root가 UI일 때) 또는 `UI/dist` (저장소 루트 기준일 때). 404가 나오면 `UI/dist`로 변경 후 재배포
 
 4. **Environment Variables** 추가 (필요한 경우):
    ```
