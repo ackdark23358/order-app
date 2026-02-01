@@ -41,9 +41,7 @@
    DB_NAME=coffee_order_db
    DB_USER=<데이터베이스 사용자>
    DB_PASSWORD=<데이터베이스 비밀번호>
-   CORS_ORIGIN=https://your-frontend-url.onrender.com
    ```
-   - **CORS_ORIGIN**: 여러 origin을 쓰려면 쉼표로 구분 (예: `http://localhost:5173,https://order-app-frontend2-lank.onrender.com`)
    - 데이터베이스 연결 정보는 PostgreSQL 서비스의 **Connections** 탭에서 확인
 
 5. **Create Web Service** 클릭
@@ -105,10 +103,7 @@
    - 모든 민감한 정보는 환경 변수로 관리
    - `.env` 파일은 Git에 커밋하지 않음
 
-3. **CORS 설정**:
-   - 백엔드의 `CORS_ORIGIN`을 프런트엔드 URL로 설정
-
-4. **데이터베이스 연결**:
+3. **데이터베이스 연결**:
    - Render 내부 서비스 간에는 Internal Database URL 사용
    - SSL 연결이 필요할 수 있음
 
@@ -118,6 +113,5 @@
 
 ## 배포 후 점검 (메뉴가 안 보일 때)
 
-1. **CORS**: Render 백엔드 → Environment → `CORS_ORIGIN` = 프론트엔드 URL (예: `https://order-app-frontend2-lank.onrender.com`). 저장 후 재배포.
-2. **DB 초기 데이터**: Render PostgreSQL에 메뉴/옵션이 없으면 빈 화면이 됨. 로컬에서 `.env`를 Render External DB로 잠시 바꾼 뒤 `npm run insert-data` 실행 (또는 백엔드 Shell에서 실행).
-3. **브라우저 콘솔**: F12 → Console에서 CORS/네트워크 오류 여부 확인.
+1. **DB 초기 데이터**: Render PostgreSQL에 메뉴/옵션이 없으면 빈 화면이 됨. 로컬에서 `.env`를 Render External DB로 잠시 바꾼 뒤 `npm run insert-data` 실행 (또는 백엔드 Shell에서 실행).
+2. **브라우저 콘솔**: F12 → Console에서 네트워크 오류 여부 확인.

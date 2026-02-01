@@ -39,8 +39,6 @@ services:
         fromDatabase:
           name: coffee-order-db
           property: password
-      - key: CORS_ORIGIN
-        sync: false  # 프런트엔드 URL로 수동 설정 필요
 
   # 프런트엔드 정적 사이트
   - type: web

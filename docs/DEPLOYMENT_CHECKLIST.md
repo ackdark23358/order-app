@@ -14,7 +14,6 @@
 ### 3. 백엔드 준비
 - [ ] `server/package.json`에 `start` 스크립트가 있음
 - [ ] 환경 변수 설정 준비 완료
-- [ ] CORS 설정이 프런트엔드 URL을 허용하도록 설정
 
 ### 4. 프런트엔드 준비
 - [ ] `UI/package.json`에 `build` 스크립트가 있음
@@ -56,11 +55,6 @@
 4. Environment Variables에 `VITE_API_URL` 설정 (백엔드 URL)
 5. Create Static Site
 
-### Step 5: CORS 설정 업데이트
-1. 백엔드 서비스의 Environment Variables 수정
-2. `CORS_ORIGIN`을 프런트엔드 URL로 업데이트
-3. 서비스 재시작
-
 ## 배포 후 확인사항
 
 - [ ] 백엔드 헬스 체크: `https://your-backend-url.onrender.com/api/health`
@@ -82,7 +76,6 @@
 - Node.js 버전 확인
 
 ### API 요청이 실패하는 경우
-- CORS 설정 확인
 - API URL 확인 (`VITE_API_URL`)
 - 네트워크 탭에서 요청 URL 확인
 

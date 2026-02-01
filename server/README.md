@@ -26,9 +26,6 @@ DB_PORT=5432
 DB_NAME=coffee_order_db
 DB_USER=postgres
 DB_PASSWORD=postgres
-
-# CORS 설정
-CORS_ORIGIN=http://localhost:5173
 ```
 `.env` 파일을 열어 데이터베이스 설정을 수정하세요.
 
@@ -74,7 +71,6 @@ server/
 - Node.js
 - Express.js
 - PostgreSQL
-- CORS
 
 ## API 엔드포인트
 

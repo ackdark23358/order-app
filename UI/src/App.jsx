@@ -74,7 +74,7 @@ function App() {
       setInventory(inventoryData)
     } catch (err) {
       console.error('메뉴 로드 오류:', err)
-      setError('메뉴를 불러오는 중 오류가 발생했습니다. (CORS 또는 백엔드 연결을 확인하세요.)')
+      setError('메뉴를 불러오는 중 오류가 발생했습니다. (백엔드 연결을 확인하세요.)')
     } finally {
       setLoading(false)
     }
@@ -360,7 +360,7 @@ function App() {
           {menuItems.length === 0 && (
             <div className="text-center py-12 px-4 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 max-w-lg mx-auto">
               <p className="font-semibold text-gray-800">메뉴가 없습니다</p>
-              <p className="text-sm mt-2">백엔드 연결(CORS) 또는 DB 초기 데이터를 확인하세요.</p>
+              <p className="text-sm mt-2">백엔드 연결 또는 DB 초기 데이터를 확인하세요.</p>
               <p className="text-xs mt-3 text-gray-500 break-all">연결 API: {getApiBaseUrl().replace(/\/api\/?$/, '')}</p>
               <button
                 type="button"
