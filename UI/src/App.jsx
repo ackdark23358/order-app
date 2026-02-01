@@ -6,7 +6,7 @@ import ShoppingCart from './components/ShoppingCart'
 import AdminDashboard from './components/AdminDashboard'
 import InventoryStatus from './components/InventoryStatus'
 import OrderStatus from './components/OrderStatus'
-import { menuAPI, orderAPI, statsAPI } from './api/api.js'
+import { menuAPI, orderAPI, statsAPI, getApiBaseUrl } from './api/api.js'
 import './App.css'
 
 function App() {
@@ -47,20 +47,20 @@ function App() {
   const loadMenus = async () => {
     try {
       setLoading(true)
+      setError(null)
       const response = await menuAPI.getMenus()
-      setMenuItems(response.data)
-      
-      // 재고 정보 추출
-      const inventoryData = response.data.map(menu => ({
+      const list = Array.isArray(response?.data) ? response.data : []
+      setMenuItems(list)
+
+      const inventoryData = list.map(menu => ({
         id: menu.id,
         name: menu.name,
-        stock: menu.stock
+        stock: menu.stock ?? 0
       }))
       setInventory(inventoryData)
-      setError(null)
     } catch (err) {
       console.error('메뉴 로드 오류:', err)
-      setError('메뉴를 불러오는 중 오류가 발생했습니다.')
+      setError('메뉴를 불러오는 중 오류가 발생했습니다. (CORS 또는 백엔드 연결을 확인하세요.)')
     } finally {
       setLoading(false)
     }
@@ -329,13 +329,14 @@ function App() {
       <main className="flex-1 pb-80 px-4 py-6">
         <div className="container mx-auto">
           {menuItems.length === 0 && (
-            <div className="text-center py-12 text-gray-600 border border-gray-200 rounded-lg bg-gray-50">
-              <p className="font-medium">메뉴가 없습니다.</p>
-              <p className="text-sm mt-1">백엔드 연결 또는 DB 초기 데이터를 확인해 주세요.</p>
+            <div className="text-center py-12 px-4 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 max-w-lg mx-auto">
+              <p className="font-semibold text-gray-800">메뉴가 없습니다</p>
+              <p className="text-sm mt-2">백엔드 연결(CORS) 또는 DB 초기 데이터를 확인하세요.</p>
+              <p className="text-xs mt-3 text-gray-500 break-all">연결 API: {getApiBaseUrl().replace(/\/api\/?$/, '')}</p>
               <button
                 type="button"
                 onClick={loadMenus}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="mt-4 px-5 py-2 bg-blue-500 text-white rounded font-medium hover:bg-blue-600"
               >
                 다시 불러오기
               </button>

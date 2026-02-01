@@ -3,8 +3,9 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://order-app-backend2
 
 // API 호출 헬퍼 함수
 async function apiRequest(endpoint, options = {}) {
+  const url = `${API_BASE_URL}${endpoint}`
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers
@@ -12,18 +13,23 @@ async function apiRequest(endpoint, options = {}) {
       ...options
     })
 
-    const data = await response.json()
-    
+    const contentType = response.headers.get('content-type')
+    const isJson = contentType && contentType.includes('application/json')
+    const data = isJson ? await response.json() : { error: `응답이 JSON이 아닙니다 (${response.status})` }
+
     if (!response.ok) {
-      throw new Error(data.error || 'API 요청 실패')
+      throw new Error(data.error || `API 요청 실패 (${response.status})`)
     }
 
     return data
   } catch (error) {
-    console.error('API 요청 오류:', error)
+    console.error('API 요청 오류:', error.message, url)
     throw error
   }
 }
+
+// 배포 환경에서 사용 중인 API 주소 확인용
+export const getApiBaseUrl = () => API_BASE_URL
 
 // 메뉴 관련 API
 export const menuAPI = {
