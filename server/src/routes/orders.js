@@ -10,13 +10,43 @@ router.post('/', async (req, res) => {
   try {
     await client.query('BEGIN')
 
-    const { items, total_amount } = req.body
+    let { items, total_amount } = req.body
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       await client.query('ROLLBACK')
       return res.status(400).json({
         success: false,
         error: '주문 항목이 필요합니다.'
+      })
+    }
+
+    // total_amount 검증 및 정수 변환 (프론트/JSON에서 숫자 보장)
+    const totalAmount = typeof total_amount === 'number' ? Math.round(total_amount) : parseInt(total_amount, 10)
+    if (Number.isNaN(totalAmount) || totalAmount < 0) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({
+        success: false,
+        error: '총 금액(total_amount)이 올바르지 않습니다.'
+      })
+    }
+
+    // 각 항목 정규화: DB는 정수만 허용, option_ids는 정수 배열
+    items = items.map(item => ({
+      menu_id: parseInt(item.menu_id, 10),
+      quantity: parseInt(item.quantity, 10) || 1,
+      unit_price: parseInt(item.unit_price, 10) || 0,
+      total_price: parseInt(item.total_price, 10) || 0,
+      option_ids: Array.isArray(item.option_ids)
+        ? item.option_ids.map(id => parseInt(id, 10)).filter(n => !Number.isNaN(n))
+        : []
+    }))
+
+    const invalidItem = items.find(i => Number.isNaN(i.menu_id) || i.quantity < 1 || i.unit_price < 0 || i.total_price < 0)
+    if (invalidItem) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({
+        success: false,
+        error: '주문 항목 형식이 올바르지 않습니다. (menu_id, quantity, unit_price, total_price 확인)'
       })
     }
 
@@ -60,7 +90,7 @@ router.post('/', async (req, res) => {
       VALUES (CURRENT_TIMESTAMP, 'received', $1)
       RETURNING id, order_date, status, total_amount
     `
-    const orderResult = await client.query(orderQuery, [total_amount])
+    const orderResult = await client.query(orderQuery, [totalAmount])
     const order = orderResult.rows[0]
 
     // 주문 항목 및 옵션 저장
@@ -128,8 +158,13 @@ router.post('/', async (req, res) => {
       }
     })
   } catch (error) {
-    await client.query('ROLLBACK')
-    console.error('주문 생성 오류:', error)
+    try {
+      await client.query('ROLLBACK')
+    } catch (rollbackErr) {
+      console.error('ROLLBACK 오류:', rollbackErr.message)
+    }
+    console.error('주문 생성 오류:', error.message)
+    console.error('주문 생성 스택:', error.stack)
     res.status(500).json({
       success: false,
       error: '주문 생성 중 오류가 발생했습니다.'
