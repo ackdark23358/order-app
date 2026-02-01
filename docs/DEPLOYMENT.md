@@ -1,5 +1,19 @@
 # Render.com 배포 가이드
 
+## 서빙 방식 (CORS 없음)
+
+백엔드가 프론트엔드 빌드 결과(`UI/dist`)를 같은 도메인에서 서빙하므로 **CORS 설정이 필요 없습니다.**  
+한 개의 Web Service만 사용하고, 빌드 시 UI를 빌드한 뒤 서버가 정적 파일을 제공합니다.
+
+### 2단계(아래)에서 다음처럼 설정할 때:
+- **Root Directory**: 비움 (저장소 루트)
+- **Build Command**: `cd server && npm install && cd ../UI && npm install && npm run build`
+- **Start Command**: `cd server && node src/server.js`
+
+배포된 URL 하나로 앱(/)과 API(/api) 모두 접근합니다.
+
+---
+
 ## 배포 순서
 
 ### 1단계: PostgreSQL 데이터베이스 생성
@@ -18,7 +32,7 @@
    - **Internal Database URL**: 백엔드에서 사용
    - **External Database URL**: 로컬에서 연결 시 사용
 
-### 2단계: 백엔드 서버 배포
+### 2단계: 백엔드 서버 배포 (프론트 포함, 같은 오리진)
 
 1. **New +** 버튼 클릭 → **Web Service** 선택
 2. GitHub 저장소 연결 (또는 직접 배포)
@@ -27,9 +41,9 @@
    - **Environment**: `Node`
    - **Region**: 데이터베이스와 같은 지역
    - **Branch**: `main` (또는 메인 브랜치)
-   - **Root Directory**: `server`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
+   - **Root Directory**: 비움 (저장소 루트)
+   - **Build Command**: `cd server && npm install && cd ../UI && npm install && npm run build`
+   - **Start Command**: `cd server && node src/server.js`
    - **Plan**: Free (또는 원하는 플랜)
 
 4. **Environment Variables** 추가:

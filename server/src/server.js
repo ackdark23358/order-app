@@ -1,18 +1,21 @@
 import express from 'express'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import fs from 'fs'
 import dotenv from 'dotenv'
 import pool from './config/database.js'
 import menusRouter from './routes/menus.js'
 import ordersRouter from './routes/orders.js'
 import statsRouter from './routes/stats.js'
 
-// 환경 변수 로드
 dotenv.config()
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.PORT || 3000
 
-app.use(express.json()) // JSON 파싱
-app.use(express.urlencoded({ extended: true })) // URL 인코딩된 데이터 파싱
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 // 데이터베이스 연결 테스트
 pool.query('SELECT NOW()')
@@ -23,8 +26,8 @@ pool.query('SELECT NOW()')
     console.error('❌ 데이터베이스 연결 오류:', err.message)
   })
 
-// 기본 라우트
-app.get('/', (req, res) => {
+// API 루트 (JSON, 같은 오리진 서빙 시 프론트가 /api 사용)
+app.get('/api', (req, res) => {
   res.json({
     success: true,
     message: '커피 주문 앱 API 서버가 실행 중입니다.',
@@ -58,6 +61,26 @@ app.get('/api/health', async (req, res) => {
 app.use('/api/menus', menusRouter)
 app.use('/api/orders', ordersRouter)
 app.use('/api/stats', statsRouter)
+
+// 프론트엔드 정적 파일 (같은 오리진 서빙, CORS 불필요)
+const uiDist = path.join(__dirname, '..', '..', 'UI', 'dist')
+if (fs.existsSync(uiDist)) {
+  app.use(express.static(uiDist))
+  // SPA: API가 아닌 GET 요청은 index.html
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next()
+    res.sendFile(path.join(uiDist, 'index.html'))
+  })
+} else {
+  // UI 빌드 없이 백엔드만 실행 시
+  app.get('/', (req, res) => {
+    res.json({
+      success: true,
+      message: '커피 주문 앱 API 서버가 실행 중입니다.',
+      version: '1.0.0'
+    })
+  })
+}
 
 // 404 핸들러
 app.use((req, res) => {
