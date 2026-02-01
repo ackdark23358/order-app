@@ -49,13 +49,27 @@ function App() {
       setLoading(true)
       setError(null)
       const response = await menuAPI.getMenus()
-      const list = Array.isArray(response?.data) ? response.data : []
+      const raw = Array.isArray(response?.data) ? response.data : []
+      // 백엔드 응답 정규화: id/price/stock를 숫자로, options 배열 보장 (타입 불일치로 재고 0 되는 것 방지)
+      const list = raw.map(menu => ({
+        ...menu,
+        id: Number(menu.id),
+        price: Number(menu.price),
+        stock: Number(menu.stock ?? 0),
+        options: Array.isArray(menu.options)
+          ? menu.options.map(opt => ({
+              id: Number(opt.id),
+              name: opt.name,
+              price: Number(opt.price ?? 0)
+            }))
+          : []
+      }))
       setMenuItems(list)
 
       const inventoryData = list.map(menu => ({
         id: menu.id,
         name: menu.name,
-        stock: menu.stock ?? 0
+        stock: menu.stock
       }))
       setInventory(inventoryData)
     } catch (err) {
@@ -116,8 +130,9 @@ function App() {
   }
 
   const getStock = (menuId) => {
-    const inventoryItem = inventory.find(inv => inv.id === menuId)
-    return inventoryItem ? inventoryItem.stock : 0
+    const id = Number(menuId)
+    const inventoryItem = inventory.find(inv => Number(inv.id) === id)
+    return inventoryItem != null ? Number(inventoryItem.stock) : 0
   }
 
   const addToCart = (menuItem, selectedOptions) => {
@@ -357,7 +372,7 @@ function App() {
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {menuItems.map(item => {
+            {menuItems.filter(Boolean).map(item => {
               const stock = getStock(item.id)
               return (
                 <MenuCard 

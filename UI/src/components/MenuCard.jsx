@@ -28,12 +28,14 @@ function MenuCard({ menuItem, stock, onAddToCart }) {
     )
   }
 
+  const options = Array.isArray(menuItem.options) ? menuItem.options : []
+
   const calculatePrice = () => {
     const optionPrice = selectedOptions.reduce((sum, optId) => {
-      const option = menuItem.options.find(o => o.id === optId)
-      return sum + (option ? option.price : 0)
+      const option = options.find(o => Number(o.id) === Number(optId))
+      return sum + (option ? Number(option.price) : 0)
     }, 0)
-    return menuItem.price + optionPrice
+    return Number(menuItem.price) + optionPrice
   }
 
   const handleAddToCart = () => {
@@ -104,26 +106,28 @@ function MenuCard({ menuItem, stock, onAddToCart }) {
         </p>
 
         {/* 설명 */}
-        <p className="text-sm text-gray-500 mb-4">
-          {menuItem.description}
-        </p>
+        {(menuItem.description != null && menuItem.description !== '') && (
+          <p className="text-sm text-gray-500 mb-4">
+            {menuItem.description}
+          </p>
+        )}
 
         {/* 커스터마이징 옵션 */}
         <div className="space-y-2 mb-4">
-          {menuItem.options.map(option => (
+          {options.map(option => (
             <label 
               key={option.id}
               className={`flex items-center ${isOutOfStock ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
             >
               <input
                 type="checkbox"
-                checked={selectedOptions.includes(option.id)}
+                checked={selectedOptions.some(id => Number(id) === Number(option.id))}
                 onChange={() => toggleOption(option.id)}
                 disabled={isOutOfStock}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:cursor-not-allowed"
               />
               <span className={`ml-2 text-sm ${isOutOfStock ? 'text-gray-400' : 'text-gray-700'}`}>
-                {option.name} {option.price > 0 && `(+${option.price.toLocaleString()}원)`}
+                {option.name} {Number(option.price) > 0 && `(+${Number(option.price).toLocaleString()}원)`}
               </span>
             </label>
           ))}
