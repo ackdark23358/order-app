@@ -43,7 +43,8 @@
    DB_PASSWORD=<데이터베이스 비밀번호>
    CORS_ORIGIN=https://your-frontend-url.onrender.com
    ```
-   (데이터베이스 연결 정보는 PostgreSQL 서비스의 **Connections** 탭에서 확인)
+   - **CORS_ORIGIN**: 여러 origin을 쓰려면 쉼표로 구분 (예: `http://localhost:5173,https://order-app-frontend2-lank.onrender.com`)
+   - 데이터베이스 연결 정보는 PostgreSQL 서비스의 **Connections** 탭에서 확인
 
 5. **Create Web Service** 클릭
 

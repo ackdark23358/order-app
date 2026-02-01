@@ -12,11 +12,17 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 3000
 
-// 미들웨어 설정
+// CORS: 단일 origin 또는 쉼표로 구분된 여러 origin 허용 (로컬 + 배포 URL 동시 사용)
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+const allowedOrigins = corsOrigin.split(',').map(s => s.trim()).filter(Boolean)
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true)
+    if (allowedOrigins.includes(origin)) return cb(null, origin)
+    return cb(null, false)
+  },
   credentials: true
-})) // CORS 허용
+}))
 app.use(express.json()) // JSON 파싱
 app.use(express.urlencoded({ extended: true })) // URL 인코딩된 데이터 파싱
 

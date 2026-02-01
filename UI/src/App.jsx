@@ -69,39 +69,46 @@ function App() {
   const loadOrders = async () => {
     try {
       const response = await orderAPI.getOrders()
-      // 주문 데이터를 프런트엔드 형식으로 변환
-      const formattedOrders = response.data.map(order => {
+      const list = Array.isArray(response?.data) ? response.data : []
+      const formattedOrders = list.map(order => {
         const date = new Date(order.order_date)
         const month = date.getMonth() + 1
         const day = date.getDate()
         const hours = date.getHours()
         const minutes = String(date.getMinutes()).padStart(2, '0')
         const orderDate = `${month}월 ${day}일 ${hours}:${minutes}`
-        
+        const items = Array.isArray(order.items) ? order.items : []
         return {
           id: order.id,
           date: orderDate,
-          items: order.items.map(item => ({
-            menuId: item.menu_id || item.menuId,
-            menuName: item.menu_name,
-            quantity: item.quantity,
-            optionNames: item.option_names || [],
-            totalPrice: item.total_price
+          items: items.map(item => ({
+            menuId: item.menu_id ?? item.menuId,
+            menuName: item.menu_name ?? '',
+            quantity: item.quantity ?? 0,
+            optionNames: item.option_names ?? [],
+            totalPrice: item.total_price ?? 0
           })),
-          total: order.total_amount,
-          status: order.status
+          total: order.total_amount ?? 0,
+          status: order.status ?? 'received'
         }
       })
       setOrders(formattedOrders)
     } catch (err) {
       console.error('주문 목록 로드 오류:', err)
+      setOrders([])
     }
   }
 
   const loadStats = async () => {
     try {
       const response = await statsAPI.getOrderStats()
-      setStats(response.data)
+      const d = response?.data
+      setStats({
+        total: Number(d?.total) ?? 0,
+        received: Number(d?.received) ?? 0,
+        preparing: Number(d?.preparing) ?? 0,
+        completed: Number(d?.completed) ?? 0
+      })
     } catch (err) {
       console.error('통계 조회 오류:', err)
       setStats({ total: 0, received: 0, preparing: 0, completed: 0 })
@@ -316,8 +323,15 @@ function App() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-red-600">{error}</div>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4 px-4">
+        <div className="text-red-600 text-center">{error}</div>
+        <button
+          type="button"
+          onClick={() => { setError(null); loadMenus() }}
+          className="px-5 py-2 bg-blue-500 text-white rounded font-medium hover:bg-blue-600"
+        >
+          다시 시도
+        </button>
       </div>
     )
   }
