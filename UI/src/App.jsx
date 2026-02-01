@@ -6,6 +6,7 @@ import ShoppingCart from './components/ShoppingCart'
 import AdminDashboard from './components/AdminDashboard'
 import InventoryStatus from './components/InventoryStatus'
 import OrderStatus from './components/OrderStatus'
+import AiWatermark from './components/AiWatermark'
 import { menuAPI, orderAPI, statsAPI, getApiBaseUrl } from './api/api.js'
 import './App.css'
 
@@ -313,7 +314,7 @@ function App() {
     return (
       <div className="min-h-screen bg-white">
         <Header currentView={currentView} onViewChange={setCurrentView} />
-        <div className="container mx-auto px-4 py-6 space-y-6">
+        <div className="container mx-auto px-4 py-6 space-y-6 pb-12">
           <AdminDashboard stats={stats} />
           <InventoryStatus 
             inventory={inventory} 
@@ -324,6 +325,7 @@ function App() {
             onUpdateStatus={updateOrderStatus}
           />
         </div>
+        <AiWatermark />
       </div>
     )
   }
@@ -395,6 +397,7 @@ function App() {
         onOrder={handleOrder}
         getStock={getStock}
       />
+      <AiWatermark />
     </div>
   )
 }
