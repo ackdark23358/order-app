@@ -114,3 +114,9 @@
 5. **빌드 최적화**:
    - 프런트엔드 빌드 시 프로덕션 모드로 빌드됨
    - 이미지 파일은 `public/images` 폴더에 있어야 함
+
+## 배포 후 점검 (메뉴가 안 보일 때)
+
+1. **CORS**: Render 백엔드 → Environment → `CORS_ORIGIN` = 프론트엔드 URL (예: `https://order-app-frontend2-lank.onrender.com`). 저장 후 재배포.
+2. **DB 초기 데이터**: Render PostgreSQL에 메뉴/옵션이 없으면 빈 화면이 됨. 로컬에서 `.env`를 Render External DB로 잠시 바꾼 뒤 `npm run insert-data` 실행 (또는 백엔드 Shell에서 실행).
+3. **브라우저 콘솔**: F12 → Console에서 CORS/네트워크 오류 여부 확인.

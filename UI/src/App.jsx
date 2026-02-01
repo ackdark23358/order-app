@@ -328,6 +328,19 @@ function App() {
       
       <main className="flex-1 pb-80 px-4 py-6">
         <div className="container mx-auto">
+          {menuItems.length === 0 && (
+            <div className="text-center py-12 text-gray-600 border border-gray-200 rounded-lg bg-gray-50">
+              <p className="font-medium">메뉴가 없습니다.</p>
+              <p className="text-sm mt-1">백엔드 연결 또는 DB 초기 데이터를 확인해 주세요.</p>
+              <button
+                type="button"
+                onClick={loadMenus}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                다시 불러오기
+              </button>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {menuItems.map(item => {
               const stock = getStock(item.id)
