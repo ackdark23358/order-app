@@ -14,15 +14,27 @@ const PORT = process.env.PORT || 3000
 
 // CORS: 단일 origin 또는 쉼표로 구분된 여러 origin 허용 (로컬 + 배포 URL 동시 사용)
 const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
-const allowedOrigins = corsOrigin.split(',').map(s => s.trim()).filter(Boolean)
+const allowedOrigins = corsOrigin
+  .split(',')
+  .map(s => s.trim().replace(/\/$/, '')) // 끝 슬래시 제거
+  .filter(Boolean)
+
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true)
-    if (allowedOrigins.includes(origin)) return cb(null, origin)
+    const normalizedOrigin = origin.replace(/\/$/, '')
+    if (allowedOrigins.includes(normalizedOrigin)) return cb(null, origin)
     return cb(null, false)
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }))
+
+// CORS 허용 목록 로그 (배포 시 확인용)
+if (allowedOrigins.length > 0) {
+  console.log('CORS 허용 origin:', allowedOrigins.join(', ') || '(없음)')
+}
 app.use(express.json()) // JSON 파싱
 app.use(express.urlencoded({ extended: true })) // URL 인코딩된 데이터 파싱
 
