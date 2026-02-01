@@ -1,11 +1,13 @@
 import pool from '../src/config/database.js'
 
+// UI/public/images 폴더의 파일명에 맞춤 (menu-1.jpg ~ menu-3.jpg, menu-4.png ~ menu-6.png)
 const menuData = [
   {
     name: '아메리카노(ICE)',
     description: '에스프레소에 물을 넣어 만든 시원한 아메리카노',
     price: 4000,
     stock: 10,
+    image_url: '/images/menu-1.jpg',
     options: [
       { name: '샷 추가', price: 500 },
       { name: '시럽 추가', price: 0 }
@@ -16,6 +18,7 @@ const menuData = [
     description: '에스프레소에 뜨거운 물을 넣어 만든 따뜻한 아메리카노',
     price: 4000,
     stock: 10,
+    image_url: '/images/menu-2.jpg',
     options: [
       { name: '샷 추가', price: 500 },
       { name: '시럽 추가', price: 0 }
@@ -26,6 +29,7 @@ const menuData = [
     description: '에스프레소와 부드러운 우유가 만나 만든 라떼',
     price: 5000,
     stock: 10,
+    image_url: '/images/menu-3.jpg',
     options: [
       { name: '샷 추가', price: 500 },
       { name: '시럽 추가', price: 0 },
@@ -37,6 +41,7 @@ const menuData = [
     description: '에스프레소와 우유 거품이 조화로운 카푸치노',
     price: 5000,
     stock: 10,
+    image_url: '/images/menu-4.png',
     options: [
       { name: '샷 추가', price: 500 },
       { name: '시나몬 추가', price: 0 }
@@ -47,6 +52,7 @@ const menuData = [
     description: '카라멜 시럽과 에스프레소가 만난 달콤한 음료',
     price: 6000,
     stock: 10,
+    image_url: '/images/menu-5.png',
     options: [
       { name: '샷 추가', price: 500 },
       { name: '카라멜 추가', price: 500 }
@@ -57,6 +63,7 @@ const menuData = [
     description: '바닐라 시럽이 들어간 부드러운 라떼',
     price: 5500,
     stock: 10,
+    image_url: '/images/menu-6.png',
     options: [
       { name: '샷 추가', price: 500 },
       { name: '시럽 추가', price: 0 }
@@ -80,17 +87,18 @@ async function insertInitialData() {
     }
 
     for (const menu of menuData) {
-      // 메뉴 삽입
+      // 메뉴 삽입 (image_url 포함 - UI/public/images와 매칭)
       const menuQuery = `
-        INSERT INTO menus (name, description, price, stock)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO menus (name, description, price, stock, image_url)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING id
       `
       const menuResult = await client.query(menuQuery, [
         menu.name,
         menu.description,
         menu.price,
-        menu.stock
+        menu.stock,
+        menu.image_url || null
       ])
       const menuId = menuResult.rows[0].id
 
