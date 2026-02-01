@@ -3,8 +3,13 @@ function Header({ currentView, onViewChange }) {
     <header className="bg-blue-500 border-b border-blue-600 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="bg-green-800 text-white px-6 py-2 font-bold text-lg">
-            COZY
+          <div className="flex items-center gap-3">
+            <div className="bg-green-800 text-white px-6 py-2 font-bold text-lg">
+              COZY
+            </div>
+            <span className="text-white/90 text-xs" aria-label="Cursor AI 생성 서비스 고지">
+              Cursor AI로 생성된 서비스입니다.
+            </span>
           </div>
           
           <nav className="flex gap-2">

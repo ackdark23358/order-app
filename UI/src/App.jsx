@@ -6,7 +6,6 @@ import ShoppingCart from './components/ShoppingCart'
 import AdminDashboard from './components/AdminDashboard'
 import InventoryStatus from './components/InventoryStatus'
 import OrderStatus from './components/OrderStatus'
-import AiWatermark from './components/AiWatermark'
 import { menuAPI, orderAPI, statsAPI, getApiBaseUrl } from './api/api.js'
 import './App.css'
 
@@ -325,7 +324,6 @@ function App() {
             onUpdateStatus={updateOrderStatus}
           />
         </div>
-        <AiWatermark />
       </div>
     )
   }
@@ -397,7 +395,6 @@ function App() {
         onOrder={handleOrder}
         getStock={getStock}
       />
-      <AiWatermark />
     </div>
   )
 }
